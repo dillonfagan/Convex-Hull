@@ -51,7 +51,7 @@ a,b,c represents a counter-clockwise sequence
 (subject to floating-point precision)
 '''
 def ccw(a, b, c):
-	return triangleArea(a,b,c) > EPSILON;
+	return triangleArea(a,b,c) > EPSILON
 
 '''
 Given three points a,b,c,
@@ -76,6 +76,12 @@ def clockwiseSort(points):
 	points.sort(key = angle)
 
 '''
+Brute force convex hull construction.
+'''
+def brute(points):
+	return points
+
+'''
 Merges two convex hulls together.
 '''
 def mergeHulls(a, b):
@@ -87,7 +93,8 @@ using the divide-and-conquer algorithm.
 '''
 def computeHull(points):
 	# simple case
-	if len(points) <= 2:
+	if len(points) <= 3:
+		clockwiseSort(points)
 		return points
 
 	# sort points by their x coordinates
@@ -95,8 +102,11 @@ def computeHull(points):
 
 	def hull(points):
 		# FIXME: base case -> compute hull with brute force
+		if len(points) <= 3:
+			clockwiseSort(points) # is this needed?
+			return points
 		if len(points) < 6:
-			return clockwiseSort(points)
+			return brute(points)
 
 		# midpoint index of the points list
 		m = int(math.floor(len(points) / 2))
