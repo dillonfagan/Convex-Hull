@@ -43,6 +43,7 @@ a,b,c represents a clockwise sequence
 '''
 def cw(a, b, c):
 	return triangleArea(a,b,c) < EPSILON;
+
 '''
 Given three points a,b,c,
 returns True if and only if
@@ -75,23 +76,35 @@ def clockwiseSort(points):
 	points.sort(key = angle)
 
 '''
+Merges two convex hulls together.
+'''
+def mergeHulls(a, b):
+	return a + b # FIXME
+
+'''
 Replace the implementation of computeHull with a correct computation of the convex hull
-using the divide-and-conquer algorithm
+using the divide-and-conquer algorithm.
 '''
 def computeHull(points):
+	# simple case
+	if len(points) <= 2:
+		return points
+
 	# sort points by their x coordinates
 	points.sort(key = lambda p: p[0])
 
-	# FIXME: base case
-	if len(points) <= 5:
-		return clockwiseSort(points)
+	def hull(points):
+		# FIXME: base case -> compute hull with brute force
+		if len(points) < 6:
+			return clockwiseSort(points)
 
-	# midpoint index of the points list
-	m = int(math.floor(len(points) / 2))
+		# midpoint index of the points list
+		m = int(math.floor(len(points) / 2))
+		# left half
+		a = points[:m]
+		# right half
+		b = points[(m + 1):]
 
-	# left half
-	a = points[:m]
-	# right half
-	b = points[(m + 1):]
+		return mergeHulls(hull(a), hull(b))
 
-	return computeHull(a) + computeHull(b)
+	return hull(points)
