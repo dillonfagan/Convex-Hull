@@ -86,7 +86,7 @@ def computeHull(points):
 		return clockwiseSort(points)
 
 	# midpoint index of the points list
-	m = len(points) / 2 # FIXME: wrap in floor for odd length
+	m = int(math.floor(len(points) / 2))
 
 	# left half
 	a = points[:m]
