@@ -80,9 +80,10 @@ using the divide-and-conquer algorithm
 '''
 def computeHull(points):
 	# sort points by their x coordinates
-    points.sort(key = lambda p: p[0])
+	points.sort(key = lambda p: p[0])
 
-	if len(points) <= 5: # FIXME: base case
+	# FIXME: base case
+	if len(points) <= 5:
 		return clockwiseSort(points)
 
 	# midpoint index of the points list
