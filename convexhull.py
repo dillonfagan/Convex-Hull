@@ -33,7 +33,7 @@ and zero if the points are collinear.
 '''
 def triangleArea(a, b, c):
 	return (a[0]*b[1] - a[1]*b[0] + a[1]*c[0] \
-                - a[0]*c[1] + b[0]*c[1] - c[0]*b[1]) / 2.0;
+                - a[0]*c[1] + b[0]*c[1] - c[0]*b[1]) / 2.0
 
 '''
 Given three points a,b,c,
@@ -42,7 +42,7 @@ a,b,c represents a clockwise sequence
 (subject to floating-point precision)
 '''
 def cw(a, b, c):
-	return triangleArea(a,b,c) < EPSILON;
+	return triangleArea(a,b,c) < EPSILON
 
 '''
 Given three points a,b,c,
@@ -79,7 +79,28 @@ def clockwiseSort(points):
 Brute force convex hull construction.
 '''
 def brute(points):
-	return points
+	ch = []
+	l = len(points) - 1
+	for (i, p) in enumerate(points):
+		# Invariants: either above or below must be zero in order for a pair of
+		#	points to be added to the convex hull
+		above = 0
+		below = 0
+		print("PAIR:", p, "and", points[i % l])
+		for r in points:
+			if r == p or r == points[i % l]:
+				print("SKIPPING POINT:", r)
+				continue
+			if cw(p, points[i % l], r):
+				above += 1
+			elif ccw(p, points[i % l], r):
+				below += 1
+		if above == 0 or below == 0:
+			ch.append(p)
+			ch.append(points[i % l])
+
+	clockwiseSort(ch)
+	return ch
 
 '''
 Merges two convex hulls together.
@@ -103,9 +124,11 @@ def computeHull(points):
 	def hull(points):
 		# FIXME: base case -> compute hull with brute force
 		if len(points) <= 3:
+			print("SIMPLE BASE CASE")
 			clockwiseSort(points) # is this needed?
 			return points
 		if len(points) < 6:
+			print("BRUTE BASE CASE")
 			return brute(points)
 
 		# midpoint index of the points list
