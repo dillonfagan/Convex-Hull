@@ -84,20 +84,21 @@ def brute(points):
 	for (i, p) in enumerate(points):
 		# Invariants: either above or below must be zero in order for a pair of
 		#	points to be added to the convex hull
+		q = points[(i+1)%l]
 		above = 0
 		below = 0
-		print("PAIR:", p, "and", points[i % l])
+		print("PAIR:", p, "and", q)
 		for r in points:
-			if r == p or r == points[i % l]:
+			if r == p or r == q:
 				print("SKIPPING POINT:", r)
 				continue
-			if cw(p, points[i % l], r):
+			if cw(p, q, r):
 				above += 1
-			elif ccw(p, points[i % l], r):
+			elif ccw(p, q, r):
 				below += 1
 		if above == 0 or below == 0:
 			ch.append(p)
-			ch.append(points[i % l])
+			ch.append(q)
 
 	clockwiseSort(ch)
 	return ch
