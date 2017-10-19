@@ -80,26 +80,27 @@ Brute force convex hull construction.
 '''
 def brute(points):
 	ch = []
-	l = len(points) - 1
-	for (i, p) in enumerate(points):
-		# Invariants: either above or below must be zero in order for a pair of
-		#	points to be added to the convex hull
-		q = points[(i + 1) % l]
-		above = 0
-		below = 0
-		print("PAIR: " + str(p) + " and " + str(q))
-		for r in points:
-			if r == p or r == q:
+	for p in points:
+		for q in points:
+			if q == p:
 				continue
-			if cw(p, q, r):
-				above += 1
-			elif ccw(p, q, r):
-				below += 1
-		if above == 0 or below == 0:
-			if not p in ch:
-				ch.append(p)
-			if not q in ch:
-				ch.append(q)
+			print("PAIR: " + str(p) + " and " + str(q))
+			# Invariants: either above or below must be zero in order for a pair of
+			#	points to be added to the convex hull
+			above = 0
+			below = 0
+			for r in points:
+				if r == p or r == q:
+					continue
+				if cw(p, q, r):
+					above += 1
+				elif ccw(p, q, r):
+					below += 1
+			if above == 0 or below == 0:
+				if not p in ch:
+					ch.append(p)
+				if not q in ch:
+					ch.append(q)
 
 	clockwiseSort(ch)
 	print(ch)
