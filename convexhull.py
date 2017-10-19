@@ -84,30 +84,68 @@ def brute(points):
 	for (i, p) in enumerate(points):
 		# Invariants: either above or below must be zero in order for a pair of
 		#	points to be added to the convex hull
-		q = points[(i+1)%l]
+		q = points[(i + 1) % l]
 		above = 0
 		below = 0
-		print("PAIR:", p, "and", q)
+		print("PAIR: " + str(p) + " and " + str(q))
 		for r in points:
 			if r == p or r == q:
-				print("SKIPPING POINT:", r)
 				continue
 			if cw(p, q, r):
 				above += 1
 			elif ccw(p, q, r):
 				below += 1
 		if above == 0 or below == 0:
-			ch.append(p)
-			ch.append(q)
+			if not p in ch:
+				ch.append(p)
+			if not q in ch:
+				ch.append(q)
 
 	clockwiseSort(ch)
+	print(ch)
 	return ch
 
 '''
-Merges two convex hulls together.
+Returns a merger of two convex hulls.
 '''
-def mergeHulls(a, b):
-	return a + b # FIXME
+def mergeHulls(a, b): # FIXME
+	ch = []
+	l_anchor = a[len(a) - 1] # rightmost point on the left hull
+	r_anchor = b[0] # leftmost point on the right hull
+
+	print("INIT LA: " + str(l_anchor))
+	print("INIT RA: " + str(r_anchor))
+
+	# find upper bridge right side
+	for (ri, r) in b:
+		np = b[(ri + 1) % (len(b) - 1)] # next point on hull
+		if np[1] > r_anchor[1]:
+			r_anchor = np
+	ch.append(r_anchor)
+
+	# upper bridge left side
+	for (li, l) in a:
+		np = a[(li + 1) % (len(a) - 1)]
+		if np[1] > l_anchor[1]:
+			l_anchor = np
+	ch.append(l_anchor)
+
+	# find lower bridge
+	for (ri, r) in b:
+		np = a[(li + 1) % (len(b) - 1)]
+		if np[1] < r_anchor[1]:
+			r_anchor = np
+	ch.append(r_anchor)
+
+	for (li, l) in a:
+		np = a[(li + 1) % (len(a) - 1)]
+		if np[1] < l_anchor[1]:
+			l_anchor = np
+	ch.append(l_anchor)
+
+	clockwiseSort(ch)
+	print(ch)
+	return ch
 
 '''
 Replace the implementation of computeHull with a correct computation of the convex hull
@@ -121,15 +159,16 @@ def computeHull(points):
 
 	# sort points by their x coordinates
 	points.sort(key = lambda p: p[0])
+	print(points)
 
 	def hull(points):
-		# FIXME: base case -> compute hull with brute force
+		# base case(s) -> compute hull with brute force
 		if len(points) <= 3:
-			print("SIMPLE BASE CASE")
-			clockwiseSort(points) # is this needed?
+			print("SIMPLE TRIPLE")
+			clockwiseSort(points)
 			return points
 		if len(points) < 6:
-			print("BRUTE BASE CASE")
+			print("BRUTE FORCE")
 			return brute(points)
 
 		# midpoint index of the points list
