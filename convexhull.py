@@ -84,7 +84,7 @@ def brute(points):
 		for q in points:
 			if q == p:
 				continue
-			print("PAIR: " + str(p) + " and " + str(q))
+			# print("PAIR: " + str(p) + " and " + str(q))
 			# Invariants: either above or below must be zero in order for a pair of
 			#	points to be added to the convex hull
 			above = 0
@@ -103,49 +103,65 @@ def brute(points):
 					ch.append(q)
 
 	clockwiseSort(ch)
-	print(ch)
+	# print(ch)
 	return ch
 
 '''
 Returns a merger of two convex hulls.
 '''
-def mergeHulls(a, b): # FIXME
+def mergeHulls(a, b, m): # FIXME
 	ch = []
-	l_anchor = a[len(a) - 1] # rightmost point on the left hull
-	r_anchor = b[0] # leftmost point on the right hull
+	all_points = a + b
+	# y3 is the highest y coordinate
+	# y4 is the lowest y coordinate
+	# note - x, y3, y4 will not change
+	y = sorted(all_points, key = lambda p: p[1])
+	y3 = y[len(y) - 1][1]
+	y4 = y[0][1]
 
-	print("INIT LA: " + str(l_anchor))
-	print("INIT RA: " + str(r_anchor))
+	print("left hull: " + str(a))
+	print("right hull: " + str(b))
 
-	# find upper bridge right side
-	for (ri, r) in b:
-		np = b[(ri + 1) % (len(b) - 1)] # next point on hull
-		if np[1] > r_anchor[1]:
-			r_anchor = np
-	ch.append(r_anchor)
+	i = len(a) - 1
+	j = 0
 
-	# upper bridge left side
-	for (li, l) in a:
-		np = a[(li + 1) % (len(a) - 1)]
-		if np[1] > l_anchor[1]:
-			l_anchor = np
-	ch.append(l_anchor)
+	upper_left = a[i] # rightmost point on the left hull
+	upper_right = b[j] # leftmost point on the right hull
 
-	# find lower bridge
-	for (ri, r) in b:
-		np = a[(li + 1) % (len(b) - 1)]
-		if np[1] < r_anchor[1]:
-			r_anchor = np
-	ch.append(r_anchor)
+	# print("INIT LA: " + str(i))
+	# print("INIT RA: " + str(j))
 
-	for (li, l) in a:
-		np = a[(li + 1) % (len(a) - 1)]
-		if np[1] < l_anchor[1]:
-			l_anchor = np
-	ch.append(l_anchor)
 
-	clockwiseSort(ch)
-	print(ch)
+
+	while yint(upper_left, b[(j + 1) % len(b)], m, y3, y4) > yint(upper_left, upper_right, m, y3, y4) or \
+	yint(a[(i - 1) % len(a)], upper_right, m, y3, y4) > yint(upper_left, upper_right, m, y3, y4):
+		if yint(upper_left, b[(j + 1) % len(b)], m, y3, y4) > yint(upper_left, upper_right, m, y3, y4):
+			# move right "finger" clockwise
+			j += 1
+			# upper tangent
+			upper_right = b[j]
+		else:
+			i -= 1
+			upper_left = a[i]
+
+	i = len(a) - 1
+	j = 0
+
+	lower_left = a[i]
+	lower_right = b[j]
+
+	while yint(lower_left, b[(j - 1) % len(b)], m, y3, y4) < yint(lower_left, lower_right, m, y3, y4) or \
+	yint(a[(i + 1) % len(a)], lower_right, m, y3, y4) < yint(lower_left, lower_right, m, y3, y4):
+		if yint(lower_left, b[(j - 1) % len(b)], m, y3, y4) < yint(lower_left, lower_right, m, y3, y4):
+			# move right "finger" clockwise
+			j -= 1
+			lower_right = b[j]
+		else:
+			i += 1
+			lower_left = a[i]
+
+	ch = a + b
+
 	return ch
 
 '''
@@ -155,7 +171,6 @@ using the divide-and-conquer algorithm.
 def computeHull(points):
 	# simple case
 	if len(points) <= 3:
-		clockwiseSort(points)
 		return points
 
 	# sort points by their x coordinates
@@ -166,7 +181,6 @@ def computeHull(points):
 		# base case(s) -> compute hull with brute force
 		if len(points) <= 3:
 			print("SIMPLE TRIPLE")
-			clockwiseSort(points)
 			return points
 		if len(points) < 6:
 			print("BRUTE FORCE")
@@ -175,10 +189,12 @@ def computeHull(points):
 		# midpoint index of the points list
 		m = int(math.floor(len(points) / 2))
 		# left half
-		a = points[:m]
+		a = points[:m]; print("LEFT - " + str(a))
 		# right half
-		b = points[(m + 1):]
+		b = points[m:]; print("RIGHT - " + str(b))
 
-		return mergeHulls(hull(a), hull(b))
+		return mergeHulls(hull(a), hull(b), m)
 
-	return hull(points)
+	convex_hull = hull(points)
+	clockwiseSort(convex_hull)
+	return convex_hull
