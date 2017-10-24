@@ -101,8 +101,6 @@ def brute(points):
 					ch.append(p)
 				if not q in ch:
 					ch.append(q)
-
-	clockwiseSort(ch)
 	# print(ch)
 	return ch
 
