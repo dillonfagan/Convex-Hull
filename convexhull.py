@@ -102,7 +102,7 @@ def brute(points):
 				if not q in ch:
 					ch.append(q)
 
-	clockwiseSort(ch)
+	#clockwiseSort(ch)
 	# print(ch)
 	return ch
 
@@ -126,7 +126,9 @@ def mergeHulls(a, b, m): # FIXME
 	j = 0
 
 	upper_left = a[i] # rightmost point on the left hull
+	print("OG Upper Left: " + str(upper_left))
 	upper_right = b[j] # leftmost point on the right hull
+	print("OG Upper Right: " + str(upper_right))
 
 	# print("INIT LA: " + str(i))
 	# print("INIT RA: " + str(j))
@@ -139,10 +141,14 @@ def mergeHulls(a, b, m): # FIXME
 			# move right "finger" clockwise
 			j += 1
 			# upper tangent
+			#b.remove(upper_right)
 			upper_right = b[j]
+			print("Upper Right: " + str(upper_right))
 		else:
 			i -= 1
+			#a.remove(upper_left)
 			upper_left = a[i]
+			print("Upper Left: " + str(upper_left))
 
 	i = len(a) - 1
 	j = 0
@@ -155,12 +161,21 @@ def mergeHulls(a, b, m): # FIXME
 		if yint(lower_left, b[(j - 1) % len(b)], m, y3, y4) < yint(lower_left, lower_right, m, y3, y4):
 			# move right "finger" clockwise
 			j -= 1
+			#b.remove(lower_right)
 			lower_right = b[j]
+			print("Lower Right: " + str(lower_right))
 		else:
 			i += 1
+			#a.remove(lower_left)
 			lower_left = a[i]
+			print("Lower Left: " + str(lower_left))
 
 	ch = a + b
+
+	print("Final Upper Right: " + str(upper_right))
+	print("Final Upper Left: " + str(upper_left))
+	print("Final Lower Right: " + str(lower_right))
+	print("Final Lower Left: " + str(lower_left))
 
 	return ch
 
