@@ -7,7 +7,7 @@ from convexhull import computeHull
 
 
 def hello(event):
-    print("Single Click, Button-l") 
+    print("Single Click, Button-l")
 
 def addPoint(event):
 	drawPoint(w, event.x, event.y)
@@ -16,7 +16,7 @@ def addPoint(event):
 def drawPoint(canvas,x,y):
 	# r = 4
 	# id = canvas.create_oval(x-r,y-r,x+r,y+r)
-	id = canvas.create_image((x,y),image=ram,state=NORMAL)
+	id = canvas.create_text((x,y),text=str((x,y)))
 	return id
 
 def showPoints(event):
@@ -43,7 +43,7 @@ quit_button.pack()
 
 canvas_width = 1000
 canvas_height = 800
-w = Canvas(master, 
+w = Canvas(master,
            width=canvas_width,
            height=canvas_height)
 ram = PhotoImage(file="ram-sm.gif")

@@ -79,105 +79,116 @@ def clockwiseSort(points):
 Brute force convex hull construction.
 '''
 def brute(points):
+	# Invariant (init): convex hull list is initialized
 	ch = []
 	for p in points:
 		for q in points:
 			if q == p:
 				continue
-			# print("PAIR: " + str(p) + " and " + str(q))
-			# Invariants: either above or below must be zero in order for a pair of
+			# Invariants (init): either above or below must be zero in order for a pair of
 			#	points to be added to the convex hull
 			above = 0
 			below = 0
 			for r in points:
 				if r == p or r == q:
 					continue
-				if cw(p, q, r):
+				if cw(p, q, r): # Invariant (maintenance): If moving clockwise through points
 					above += 1
-				elif ccw(p, q, r):
+				elif ccw(p, q, r): # Invariant (maintenance): If moving counter-clockwise through points
 					below += 1
-			if above == 0 or below == 0:
+			if above == 0 or below == 0: # Invariant (termination): point can be added to ch
 				if not p in ch:
 					ch.append(p)
 				if not q in ch:
 					ch.append(q)
-
-	#clockwiseSort(ch)
-	# print(ch)
 	return ch
 
 '''
 Returns a merger of two convex hulls.
 '''
-def mergeHulls(a, b, m): # FIXME
+def mergeHulls(a, b, m):
+	# Invariant (init): convex hull list is initialized
 	ch = []
-	all_points = a + b
+
+	# Invariants (init):
 	# y3 is the highest y coordinate
 	# y4 is the lowest y coordinate
 	# note - x, y3, y4 will not change
-	y = sorted(all_points, key = lambda p: p[1])
+	y = sorted(a + b, key = lambda p: p[1])
 	y3 = y[len(y) - 1][1]
 	y4 = y[0][1]
 
-	print("left hull: " + str(a))
-	print("right hull: " + str(b))
+	# (i, j) are the indices of the start and end points of the tangent lines
+	utan = upper_tangent(a, b, m, y3, y4)
+	ltan = lower_tangent(a, b, m, y3, y4)
 
-	i = len(a) - 1
-	j = 0
+	# Invariant (init): Upper Left and Right / Lower Left and Right tangent points
+	upper_left = a[utan[0]]; upper_right = b[utan[1]]
+	lower_left = a[ltan[0]]; lower_right = b[ltan[1]]
 
-	upper_left = a[i] # rightmost point on the left hull
-	print("OG Upper Left: " + str(upper_left))
-	upper_right = b[j] # leftmost point on the right hull
-	print("OG Upper Right: " + str(upper_right))
+	# walk around each hull, clockwise sorted
+	# walk left hull from upper_left counter-clockwise until lower_left is added to ch
+	# walk right hull from upper_right clockwise until lower_right is added to ch
+	t = 0 # Invariant (init): t determines whether the upper and lower tangents have been visited
+	i = utan[0] # Invariant (init): i is the index of the current point on the left hull
+	while t < 2:
+		ch.append(a[i])
+		# Invariant (maintenance): Shows movement through left hull
+		if a[i] == upper_left or a[i] == lower_left:
+			t += 1
+		i = (i - 1) % len(a)
 
-	# print("INIT LA: " + str(i))
-	# print("INIT RA: " + str(j))
-
-
-
-	while yint(upper_left, b[(j + 1) % len(b)], m, y3, y4) > yint(upper_left, upper_right, m, y3, y4) or \
-	yint(a[(i - 1) % len(a)], upper_right, m, y3, y4) > yint(upper_left, upper_right, m, y3, y4):
-		if yint(upper_left, b[(j + 1) % len(b)], m, y3, y4) > yint(upper_left, upper_right, m, y3, y4):
-			# move right "finger" clockwise
-			j += 1 % len(b)
-			# upper tangent
-			#b.remove(upper_right)
-			upper_right = b[j]
-			print("*Upper Right: " + str(upper_right))
-		else:
-			i -= 1 % len(a)
-			#a.remove(upper_left)
-			upper_left = a[i]
-			print("Upper Left: " + str(upper_left))
-
-	i = len(a) - 1
-	j = 0
-
-	lower_left = a[i]
-	lower_right = b[j]
-
-	while yint(lower_left, b[(j - 1) % len(b)], m, y3, y4) < yint(lower_left, lower_right, m, y3, y4) or \
-	yint(a[(i + 1) % len(a)], lower_right, m, y3, y4) < yint(lower_left, lower_right, m, y3, y4):
-		if yint(lower_left, b[(j - 1) % len(b)], m, y3, y4) < yint(lower_left, lower_right, m, y3, y4):
-			# move right "finger" clockwise
-			j -= 1 % len(b)
-			#b.remove(lower_right)
-			lower_right = b[j]
-			print("Lower Right: " + str(lower_right))
-		else:
-			i += 1 % len(a)
-			#a.remove(lower_left)
-			lower_left = a[i]
-			print("Lower Left: " + str(lower_left))
-
-	ch = a + b
-
-	print("Final Upper Right: " + str(upper_right))
-	print("Final Upper Left: " + str(upper_left))
-	print("Final Lower Right: " + str(lower_right))
-	print("Final Lower Left: " + str(lower_left))
+	t = 0 # Invariant (init): t determines whether the upper and lower tangents have been visited
+	i = utan[1] # Invariant (init): i is the index of the current point on the right hull
+	while t < 2:
+		ch.append(b[i])
+		# Invariant (maintenance): Shows movement through right hull
+		if b[i] == upper_right or b[i] == lower_right:
+			t += 1
+		i = (i + 1) % len(b)
 
 	return ch
+
+'''
+Returns a tuple of the start- and endpoint of the upper tangent.
+'''
+def upper_tangent(a, b, m, y3, y4):
+	# Invariants (init):
+	i = len(a) - 1 # init with rightmost index of 'a'
+	j = 0 # init with leftmost index of 'b'
+
+	while yint(a[i], b[(j + 1) % (len(b))], m, y3, y4) > yint(a[i], b[j], m, y3, y4) or \
+	yint(a[(i - 1) % (len(a))], b[j], m, y3, y4) > yint(a[i], b[j], m, y3, y4):
+		# Invariant (maintenance): Demonstrates clockwise movement through points
+		if yint(a[i], b[(j + 1) % (len(b))], m, y3, y4) > yint(a[i], b[j], m, y3, y4):
+			# move right "finger" clockwise
+			j = (j + 1) % (len(b))
+		# Invariant (maintenance): Demonstrates counter-clockwise movement through points
+		else:
+			# move left "finger" counter-clockwise
+			i = (i - 1) % (len(a))
+
+	return (i, j)
+
+'''
+Returns a tuple of the start- and endpoint of the lower tangent.
+'''
+def lower_tangent(a, b, m, y3, y4):
+	# Invariants (init):
+	k = len(a) - 1 # init with rightmost index of 'a'
+	z = 0 # init with leftmost index of b
+
+	while yint(a[k], b[(z - 1) % (len(b))], m, y3, y4) < yint(a[k], b[z], m, y3, y4) or \
+	yint(a[(k + 1) % (len(a))], b[z], m, y3, y4) < yint(a[k], b[z], m, y3, y4):
+		# Invariant (maintenance): Demonstrates counter-clockwise movement through points
+		if yint(a[k], b[(z - 1) % (len(b))], m, y3, y4) < yint(a[k], b[z], m, y3, y4):
+			# move left "finger" counter-clockwise
+			k = (k - 1) % (len(a))
+		# Invariant (maintenance): Demonstrates clockwise movement
+		else:
+			z = (z + 1) % (len(b))
+
+	return (k, z)
 
 '''
 Replace the implementation of computeHull with a correct computation of the convex hull
@@ -190,23 +201,22 @@ def computeHull(points):
 
 	# sort points by their x coordinates
 	points.sort(key = lambda p: p[0])
-	print(points)
 
 	def hull(points):
 		# base case(s) -> compute hull with brute force
+		# Invariant (termination): Base case, simple convex hull is returned
 		if len(points) <= 3:
-			print("SIMPLE TRIPLE")
 			return points
+		# Invariant (termination): Base case, naive convex hull is returned
 		if len(points) < 6:
-			print("BRUTE FORCE")
 			return brute(points)
 
 		# midpoint index of the points list
 		m = int(math.floor(len(points) / 2))
 		# left half
-		a = points[:m]; print("LEFT - " + str(a))
+		a = points[:m]
 		# right half
-		b = points[m:]; print("RIGHT - " + str(b))
+		b = points[m:]
 
 		return mergeHulls(hull(a), hull(b), m)
 
