@@ -139,13 +139,13 @@ def mergeHulls(a, b, m): # FIXME
 	yint(a[(i - 1) % len(a)], upper_right, m, y3, y4) > yint(upper_left, upper_right, m, y3, y4):
 		if yint(upper_left, b[(j + 1) % len(b)], m, y3, y4) > yint(upper_left, upper_right, m, y3, y4):
 			# move right "finger" clockwise
-			j += 1
+			j += 1 % len(b)
 			# upper tangent
 			#b.remove(upper_right)
 			upper_right = b[j]
-			print("Upper Right: " + str(upper_right))
+			print("*Upper Right: " + str(upper_right))
 		else:
-			i -= 1
+			i -= 1 % len(a)
 			#a.remove(upper_left)
 			upper_left = a[i]
 			print("Upper Left: " + str(upper_left))
@@ -160,12 +160,12 @@ def mergeHulls(a, b, m): # FIXME
 	yint(a[(i + 1) % len(a)], lower_right, m, y3, y4) < yint(lower_left, lower_right, m, y3, y4):
 		if yint(lower_left, b[(j - 1) % len(b)], m, y3, y4) < yint(lower_left, lower_right, m, y3, y4):
 			# move right "finger" clockwise
-			j -= 1
+			j -= 1 % len(b)
 			#b.remove(lower_right)
 			lower_right = b[j]
 			print("Lower Right: " + str(lower_right))
 		else:
-			i += 1
+			i += 1 % len(a)
 			#a.remove(lower_left)
 			lower_left = a[i]
 			print("Lower Left: " + str(lower_left))
