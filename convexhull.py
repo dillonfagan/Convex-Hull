@@ -109,6 +109,10 @@ Returns a merger of two convex hulls.
 '''
 def mergeHulls(a, b, m): # FIXME
 	ch = []
+
+	clockwiseSort(a)
+	clockwiseSort(b)
+
 	# y3 is the highest y coordinate
 	# y4 is the lowest y coordinate
 	# note - x, y3, y4 will not change
@@ -119,8 +123,37 @@ def mergeHulls(a, b, m): # FIXME
 	print("left hull: " + str(a))
 	print("right hull: " + str(b))
 
-	utan = upper_tangent(a, b, m, y3, y4)
-	ltan = lower_tangent(a, b, m, y3, y4)
+	# (i, j) are the indices of the start and end points of the tangent lines
+	print("Calculating tangent lines...")
+	utan = upper_tangent(a, b, m, y3, y4); print("Upper tangent done.")
+	ltan = lower_tangent(a, b, m, y3, y4); print("Lower tangent done.")
+
+	upper_left = a[utan[0]]; upper_right = b[utan[1]]
+	lower_left = a[ltan[0]]; lower_right = b[ltan[1]]
+
+	print("LEFT UPPER: " + str(upper_left))
+	print("RIGHT UPPER: " + str(upper_right))
+	print("LEFT LOWER: " + str(lower_left))
+	print("RIGHT LOWER: " + str(lower_right))
+
+	# walk around each hull, clockwise sorted
+	# walk left hull from upper_left counter-clockwise until lower_left is added to ch
+	# walk right hull from upper_right clockwise until lower_right is added to ch
+	t = 0
+	i = utan[0]
+	while t < 2:
+		ch.append(a[i])
+		if a[i] == upper_left or a[i] == lower_left:
+			t += 1
+		i = (i - 1) % len(a)
+
+	t = 0
+	i = utan[1]
+	while t < 2:
+		ch.append(b[i])
+		if b[i] == upper_right or b[i] == lower_right:
+			t += 1
+		i = (i + 1) % len(b)
 
 	return ch
 
@@ -136,9 +169,11 @@ def upper_tangent(a, b, m, y3, y4):
 		if yint(a[i], b[(j + 1) % len(b)], m, y3, y4) > yint(a[i], b[j], m, y3, y4):
 			# move right "finger" clockwise
 			j = (j + 1) % len(b)
+			print("move right clockwise")
 		else:
 			# move left "finger" counter-clockwise
 			i = (i - 1) % len(a)
+			print("move left counter-clockwise")
 
 	return (i, j)
 
