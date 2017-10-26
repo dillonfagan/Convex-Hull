@@ -199,6 +199,8 @@ def computeHull(points):
 	startTime = time.time()
 	# simple case
 	if len(points) <= 3:
+		endTime = time.time() - startTime
+		print("Time: " + str(endTime) + " seconds")
 		return points
 
 	# sort points by their x coordinates
@@ -225,5 +227,5 @@ def computeHull(points):
 	convex_hull = hull(points)
 	clockwiseSort(convex_hull)
 	endTime = time.time() - startTime
-	print(endTime)
+	print("Time: " + str(endTime) + " seconds")
 	return convex_hull

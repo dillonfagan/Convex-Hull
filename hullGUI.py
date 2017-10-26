@@ -3,8 +3,13 @@
 # from tkinter import *
 from Tkinter import *
 import copy
+import random
 from convexhull import computeHull
 
+def generatePoints(n):
+    for i in range(n):
+        points.append(random.randint(0,100000000), random.randint(0,100000000))
+    return points
 
 def hello(event):
     print("Single Click, Button-l")
