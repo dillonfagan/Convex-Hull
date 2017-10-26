@@ -214,6 +214,8 @@ def computeHull(points):
 		# Invariant (termination): Base case, naive convex hull is returned
 		if len(points) < 6:
 			return brute(points)
+		if len(points) > 999:
+			return []
 
 		# midpoint index of the points list
 		m = int(math.floor(len(points) / 2))
