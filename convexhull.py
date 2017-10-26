@@ -1,5 +1,6 @@
 import math
 import sys
+import time
 
 EPSILON = sys.float_info.epsilon
 
@@ -195,6 +196,7 @@ Replace the implementation of computeHull with a correct computation of the conv
 using the divide-and-conquer algorithm.
 '''
 def computeHull(points):
+	startTime = time.time()
 	# simple case
 	if len(points) <= 3:
 		return points
@@ -222,4 +224,6 @@ def computeHull(points):
 
 	convex_hull = hull(points)
 	clockwiseSort(convex_hull)
+	endTime = time.time() - startTime
+	print(endTime)
 	return convex_hull
